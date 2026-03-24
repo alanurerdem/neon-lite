@@ -1,0 +1,66 @@
+HTML
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">   +
+    <title>Neon Lite</title>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #game-area { position: relative; width: 500px; height: 500px; background: #001233; border: 4px solid #6b0235; box-shadow: 0 0 25px #6b0235; }
+        #player { position: absolute; width: 25px; height: 25px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px #fff; z-index: 10; }
+        .star { position: absolute; width: 20px; height: 20px; background: #ffea00; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: 0 0 15px #ffea00; }
+        .trap { position: absolute; width: 45px; height: 45px; background: #ff0040; border: 2px solid #fff; box-shadow: 0 0 15px #ff0040; border-radius: 8px; }
+        #exit { position: absolute; bottom: 10px; right: 10px; width: 60px; height: 60px; border: 3px dashed #00f2ff; color: #00f2ff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        #win-screen { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(10, 10, 10, 0.95); border: 3px solid #6b0235; padding: 40px; text-align: center; z-index: 1000; box-shadow: 0 0 30px #6b0235; border-radius: 15px; }
+    </style>
+</head>
+<body>
+    <div id="ui" style="color:#00f2ff; font-size:20px; margin-bottom:10px;">⭐ Yıldızlar: <span id="score">0</span> / 3</div>
+    <div id="game-area">
+        <div id="player" style="top: 20px; left: 20px;"></div>
+        <div class="star" style="top: 80px; left: 350px;"></div>
+        <div class="star" style="top: 420px; left: 120px;"></div>
+        <div class="star" style="top: 240px; left: 410px;"></div>
+        <div class="trap" style="top: 150px; left: 220px;"></div>
+        <div class="trap" style="top: 320px; left: 300px;"></div>
+        <div id="exit">ÇIKIŞ</div>
+        <div id="win-screen">
+            <h1 style="color: #00f2ff;">TEBRİKLER!</h1>
+            <p>Kazandın! 🏆</p>
+            <button onclick="location.reload()">TEKRAR</button>
+        </div>
+    </div>
+    <script>
+        const player = document.getElementById('player');
+        const scoreText = document.getElementById('score');
+        let score = 0, pX = 20, pY = 20;
+        document.addEventListener('keydown', (e) => {
+            const step = 20;
+            if(e.key === "ArrowUp") pY -= step;
+            if(e.key === "ArrowDown") pY += step;
+            if(e.key === "ArrowLeft") pX -= step;
+            if(e.key === "ArrowRight") pX += step;
+            pX = Math.max(0, Math.min(470, pX));
+            pY = Math.max(0, Math.min(470, pY));
+            player.style.left = pX + "px";
+            player.style.top = pY + "px";
+            check();
+        });
+        function check() {
+            const pRect = player.getBoundingClientRect();
+            document.querySelectorAll('.star').forEach(s => {
+                if(s.style.display !== 'none' && !rect(pRect, s.getBoundingClientRect())) {
+                    s.style.display = 'none'; score++; scoreText.innerText = score;
+                }
+            });
+            document.querySelectorAll('.trap').forEach(t => {
+                if(!rect(pRect, t.getBoundingClientRect())) { alert("Yandın!"); location.reload(); }
+            });
+            if(score === 3 && !rect(pRect, document.getElementById('exit').getBoundingClientRect())) {
+                document.getElementById('win-screen').style.display = 'block';
+            }
+        }
+        function rect(a, b) { return (a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+    </script>
+</body>
+</html>
